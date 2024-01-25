@@ -47,6 +47,8 @@ async function handleSearch(event) {
 
     iziToast.show({
       title: 'Error',
+      titleSize: '30',
+      messageSize: '25',
       color: 'yellow',
       message: 'Please search for something',
     });
@@ -63,8 +65,12 @@ async function handleSearch(event) {
       btnLoadMore.classList.remove(hiddenClass);
       btnLoadMore.addEventListener('click', handleLoadMore);
     } else if (!hits.length) {
+      btnLoadMore.classList.add(hiddenClass);
+
       iziToast.error({
         title: 'Error',
+        titleSize: '30',
+        messageSize: '25',
         message:
           'Sorry, there are no images matching your search query. Please try again!',
       });
@@ -80,9 +86,9 @@ async function handleSearch(event) {
   }
 }
 
-function getPhotos(value, page = 1) {
-  return axios
-    .get(`${BASE_URL}/`, {
+async function getPhotos(value, page = 1) {
+  try {
+    const response = await axios.get(`${BASE_URL}/`, {
       params: {
         key: API_KEY,
         q: value,
@@ -92,8 +98,17 @@ function getPhotos(value, page = 1) {
         per_page: 40,
         page,
       },
-    })
-    .then(({ data }) => data);
+    });
+    return response.data;
+  } catch {
+    iziToast.error({
+      title: 'Error',
+      titleSize: '30',
+      messageSize: '25',
+      message: 'Sorry! Try later! Server not working',
+    });
+    console.error(error.message);
+  }
 }
 
 // ------------------------------------------------------------КНОПКА LOAD MORE-------------------------------------------------------------
@@ -107,7 +122,6 @@ async function handleLoadMore() {
     .querySelector('.gallery-item')
     .getBoundingClientRect();
 
-  console.log(getHeightImgCard);
   try {
     const { hits } = await getPhotos(query, page);
     markupPhoto(hits, ulEl);
@@ -124,6 +138,14 @@ async function handleLoadMore() {
     if (page === maxPage) {
       btnLoadMore.classList.add(hiddenClass);
       btnLoadMore.removeEventListener('click', handleLoadMore);
+      iziToast.show({
+        title: 'Hey',
+        titleSize: '30',
+        messageSize: '25',
+        color: 'blue',
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
     }
   }
 }
@@ -165,3 +187,19 @@ function markupPhoto(hits) {
   ulEl.insertAdjacentHTML('beforeend', markup);
   modalLightboxGallery.refresh();
 }
+
+// function getPhotos(value, page = 1) {
+//   return axios
+//     .get(`${BASE_URL}/`, {
+//       params: {
+//         key: API_KEY,
+//         q: value,
+//         image_type: 'photo',
+//         orientation: 'horizontal',
+//         safesearch: 'true',
+//         per_page: 40,
+//         page,
+//       },
+//     })
+//     .then(({ data }) => data);
+// }
