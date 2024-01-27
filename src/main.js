@@ -44,6 +44,7 @@ async function handleSearch(event) {
 
   if (!query) {
     loader.classList.add(hiddenClass);
+    btnLoadMore.classList.add(hiddenClass);
 
     iziToast.show({
       title: 'Error',
@@ -187,19 +188,3 @@ function markupPhoto(hits) {
   ulEl.insertAdjacentHTML('beforeend', markup);
   modalLightboxGallery.refresh();
 }
-
-// function getPhotos(value, page = 1) {
-//   return axios
-//     .get(`${BASE_URL}/`, {
-//       params: {
-//         key: API_KEY,
-//         q: value,
-//         image_type: 'photo',
-//         orientation: 'horizontal',
-//         safesearch: 'true',
-//         per_page: 40,
-//         page,
-//       },
-//     })
-//     .then(({ data }) => data);
-// }
